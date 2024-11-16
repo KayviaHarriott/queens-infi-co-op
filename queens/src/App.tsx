@@ -62,7 +62,7 @@ function App() {
               <div className="bg-[white] rounded-md p-[24px] ">
                 <div className="w-full">
                   <Box className="pb-[12px]">
-                    <DynamicGrid/>
+                    <DynamicGrid gridSize= {4}/>
                   </Box>
                   <div className="flex flex-col gap-3">
                     <CustomAccordion
