@@ -95,9 +95,9 @@ export const Header: React.FC<HeaderProps> = () => {
       </Box>
       <div className="flex justify-center bg-[#E0E0E0] py-2">
         <p className="text-[#747474] text-center text-[14px] hidden sm:flex">
-          Disclaimer: Not affiliated with the actual LinkedIn Queens Game
+          Disclaimer: Not affiliated with the LinkedIn.
         </p>
-        <div className="flex flex-col">
+        <div className="flex flex-col sm:hidden">
           <p className="text-[#747474] text-center text-[14px]">
             Disclaimer: Not affiliated with LinkedIn.
           </p>
