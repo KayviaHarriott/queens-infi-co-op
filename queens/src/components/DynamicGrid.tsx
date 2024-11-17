@@ -1,17 +1,34 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Box, Button, TextField } from "@mui/material";
 import CrossIcon_SVG from "../components/icons/cross_icon.svg";
 import QueenIcon_SVG from "../components/icons/queen_icon.svg";
 
-interface DynamicGrid{
+interface DynamicGrid {
   gridSize: number;
+  layout: string[]; //to change
 }
-export const DynamicGrid: React.FC<DynamicGrid> = ({gridSize}) => {
+export const DynamicGrid: React.FC<DynamicGrid> = ({ gridSize, layout }) => {
   const states = ["none", "cross", "queen"];
-  
-  // State to manage the size of the grid and box states for all grid items
-  // const [gridSize, setGridSize] = useState(4); // default grid size 4x4
-  const [boxStates, setBoxStates] = useState(Array(gridSize * gridSize).fill("none"));
+
+  const [boxStates, setBoxStates] = useState(
+    Array(gridSize * gridSize).fill("none")
+  );
+  const [cellColors, setCellColors] = useState<string[]>(
+    Array(gridSize * gridSize).fill("none")
+  );
+
+  const colorMapping = {
+    "1": "#96BEFF",
+    "2": "#BBA3E2",
+    "3": "#DFA0BF",
+    "4": "#62EFEA",
+    "5": "#DFDFDF",
+    "6": "#E6F388",
+    "7": "#FF7B60",
+    "8": "#FFC992",
+    "9": "#B9B29E",
+    "10": "#B3DFA0",
+  };
 
   // Function to handle the change in grid size
   // To change
@@ -26,10 +43,25 @@ export const DynamicGrid: React.FC<DynamicGrid> = ({gridSize}) => {
     setBoxStates((prevStates) => {
       const newStates = [...prevStates];
       const currentState = newStates[index];
-      newStates[index] = states[(states.indexOf(currentState) + 1) % states.length];
+      newStates[index] =
+        states[(states.indexOf(currentState) + 1) % states.length];
       return newStates;
     });
   };
+
+  useEffect(() => {
+    const newColors: string[] = [];
+
+    layout.forEach((row) => {
+      row.split(" ").forEach((cell) => {
+        const cellNumber = cell.replace(/\D/g, ""); // Extract the number from the layout string (ignores non-numeric parts)
+        const color = colorMapping[cellNumber] || "none"; // Get the color based on the number
+        newColors.push(color); // Push the corresponding color
+      });
+    });
+
+    setCellColors(newColors); // Set the cell colors
+  }, [layout]);
 
   // Create the grid dynamically
   const renderGrid = () => {
@@ -38,6 +70,7 @@ export const DynamicGrid: React.FC<DynamicGrid> = ({gridSize}) => {
       const row = [];
       for (let j = 0; j < gridSize; j++) {
         const index = i * gridSize + j;
+        console.log(cellColors[index]);
         row.push(
           <Box
             key={index}
@@ -49,11 +82,18 @@ export const DynamicGrid: React.FC<DynamicGrid> = ({gridSize}) => {
               display: "flex",
               justifyContent: "center",
               alignItems: "center",
+              backgroundColor: cellColors[index],
             }}
           >
+            <Box /*change color of this box */></Box>
+
             {boxStates[index] === "none" && <p></p>}
-            {boxStates[index] === "cross" && <img src={CrossIcon_SVG} alt={"Cross"} />}
-            {boxStates[index] === "queen" && <img src={QueenIcon_SVG} alt={"Queen"} />}
+            {boxStates[index] === "cross" && (
+              <img src={CrossIcon_SVG} alt={"Cross"} />
+            )}
+            {boxStates[index] === "queen" && (
+              <img src={QueenIcon_SVG} alt={"Queen"} />
+            )}
           </Box>
         );
       }
@@ -68,7 +108,7 @@ export const DynamicGrid: React.FC<DynamicGrid> = ({gridSize}) => {
 
   return (
     <div className="flex justify-center items-center">
-      <div >{renderGrid()}</div>
+      <Box sx={{border: "5px solid black", borderRadius: "5px"}}><div>{renderGrid()}</div></Box>
     </div>
   );
 };

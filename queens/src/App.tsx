@@ -10,9 +10,26 @@ import { Header } from "./components/Header";
 import { DevelopersProfiles } from "./components/DevelopersProfiles";
 import { HowToPlayText } from "./components/HowToPlayText";
 import { Examples } from "./components/Examples";
+import gameData from "./assets/sample_games.json";
 
 function App() {
   const [count, setCount] = useState(0);
+  const loadGame = (gameId: number) => {
+    const selectedGame = gameData.games.find((game) => game.id === gameId);
+    return selectedGame || null; // Return the selected game or null if not found
+  };
+
+  // Example usage: Load the game with ID 1
+  function getRandomInRange(min: number, max: number) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+
+  // Example Usage
+  const randomNumber = getRandomInRange(1, 10);
+
+  // const currentGame = loadGame(getRandomInRange(1, 3));
+  const currentGame = loadGame(2);
+
   return (
     <>
       <Box sx={{}}>
@@ -24,7 +41,9 @@ function App() {
               <div className="bg-[white] rounded-md p-[24px]">
                 <div className="w-full">
                   <Box className="pb-[12px]">
-                    <DynamicGrid gridSize={4} />
+                    {currentGame && (
+                      <DynamicGrid gridSize={currentGame.grid_size} layout={currentGame.layout}/>
+                    )}
                   </Box>
                   <div className="flex flex-col gap-3">
                     <CustomAccordion
