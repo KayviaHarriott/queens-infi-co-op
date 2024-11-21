@@ -9,6 +9,7 @@ interface DynamicGrid {
 }
 export const DynamicGrid: React.FC<DynamicGrid> = ({ gridSize, layout }) => {
   const states = ["none", "cross", "queen"];
+  const [isDragging, setIsDragging] = useState(false); // Track drag state
 
   const [boxStates, setBoxStates] = useState(
     Array(gridSize * gridSize).fill("none")
@@ -30,15 +31,6 @@ export const DynamicGrid: React.FC<DynamicGrid> = ({ gridSize, layout }) => {
     "10": "#B3DFA0",
   };
 
-  // Function to handle the change in grid size
-  // To change
-  const handleGridSizeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const size = Number(event.target.value);
-    // setGridSize(size);
-    setBoxStates(Array(size * size).fill("none"));
-  };
-
-  // Function to toggle box state
   const toggleBoxState = (index: number) => {
     setBoxStates((prevStates) => {
       const newStates = [...prevStates];
@@ -49,12 +41,27 @@ export const DynamicGrid: React.FC<DynamicGrid> = ({ gridSize, layout }) => {
     });
   };
 
+  const handleMouseDown = (index: number) => {
+    setIsDragging(true); // Start dragging
+    toggleBoxState(index); // Change state of the clicked cell immediately
+  };
+
+  const handleMouseEnter = (index: number) => {
+    if (isDragging) {
+      toggleBoxState(index); // Change state of the cell while dragging
+    }
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false); // Stop dragging when the mouse is released
+  };
+
   useEffect(() => {
     const newColors: string[] = [];
 
     layout.forEach((row) => {
       row.split(" ").forEach((cell) => {
-        const cellNumber = cell.replace(/\D/g, ""); // Extract the number from the layout string (ignores non-numeric parts)
+        const cellNumber = cell.replace(/\D/g, ""); // Extract the number from the layout string
         const color = colorMapping[cellNumber] || "none"; // Get the color based on the number
         newColors.push(color); // Push the corresponding color
       });
@@ -63,6 +70,20 @@ export const DynamicGrid: React.FC<DynamicGrid> = ({ gridSize, layout }) => {
     setCellColors(newColors); // Set the cell colors
   }, [layout]);
 
+  // Add mouseup event listener globally to handle drag end
+  useEffect(() => {
+    const handleGlobalMouseUp = () => {
+      setIsDragging(false); // End dragging on global mouse up
+    };
+
+    document.addEventListener("mouseup", handleGlobalMouseUp);
+
+    // Clean up event listener on component unmount
+    return () => {
+      document.removeEventListener("mouseup", handleGlobalMouseUp);
+    };
+  }, []);
+
   // Create the grid dynamically
   const renderGrid = () => {
     const grid = [];
@@ -70,30 +91,34 @@ export const DynamicGrid: React.FC<DynamicGrid> = ({ gridSize, layout }) => {
       const row = [];
       for (let j = 0; j < gridSize; j++) {
         const index = i * gridSize + j;
-        console.log(cellColors[index]);
         row.push(
           <Box
             key={index}
-            onClick={() => toggleBoxState(index)}
-            sx={{
-              border: "1px solid black",
-              width: "50px",
-              height: "50px",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              backgroundColor: cellColors[index],
-            }}
+            onMouseDown={() => handleMouseDown(index)}
+            onMouseEnter={() => handleMouseEnter(index)}
           >
-            <Box /*change color of this box */></Box>
+            <Box
+              key={index}
+              sx={{
+                border: "1px solid black",
+                width: "50px",
+                height: "50px",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                backgroundColor: cellColors[index],
+              }}
+            >
+              <Box /*change color of this box */></Box>
 
-            {boxStates[index] === "none" && <p></p>}
-            {boxStates[index] === "cross" && (
-              <img src={CrossIcon_SVG} alt={"Cross"} />
-            )}
-            {boxStates[index] === "queen" && (
-              <img src={QueenIcon_SVG} alt={"Queen"} />
-            )}
+              {boxStates[index] === "none" && <p></p>}
+              {boxStates[index] === "cross" && (
+                <img src={CrossIcon_SVG} alt={"Cross"} />
+              )}
+              {boxStates[index] === "queen" && (
+                <img src={QueenIcon_SVG} alt={"Queen"} />
+              )}
+            </Box>
           </Box>
         );
       }
@@ -108,7 +133,9 @@ export const DynamicGrid: React.FC<DynamicGrid> = ({ gridSize, layout }) => {
 
   return (
     <div className="flex justify-center items-center">
-      <Box sx={{border: "5px solid black", borderRadius: "5px"}}><div>{renderGrid()}</div></Box>
+      <Box sx={{ border: "5px solid black", borderRadius: "5px" }}>
+        <div>{renderGrid()}</div>
+      </Box>
     </div>
   );
 };

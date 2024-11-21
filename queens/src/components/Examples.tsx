@@ -101,7 +101,7 @@ export const Examples = () => {
         ].map((example, index) => (
           <div key={index}>
             <img style={{width: "200px"}} src={example.picture} alt="" />
-            <p className="w-[200px] flex text-wrap">{example.caption}</p>
+            <div className="w-[200px] flex text-wrap">{example.caption}</div>
           </div>
         ))}
       </div>
