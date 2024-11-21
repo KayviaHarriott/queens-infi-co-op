@@ -9,7 +9,7 @@ interface DynamicGrid {
 }
 export const DynamicGrid: React.FC<DynamicGrid> = ({ gridSize, layout }) => {
   const states = ["none", "cross", "queen"];
-  const [isDragging, setIsDragging] = useState(false); // Track drag state
+  const [isHighlighting, setIsHighlighting] = useState(false); // Track highlighting state
 
   const [boxStates, setBoxStates] = useState(
     Array(gridSize * gridSize).fill("none")
@@ -41,19 +41,22 @@ export const DynamicGrid: React.FC<DynamicGrid> = ({ gridSize, layout }) => {
     });
   };
 
-  const handleMouseDown = (index: number) => {
-    setIsDragging(true); // Start dragging
+   // Mouse down handler to start highlighting
+   const handleMouseDown = (index: number) => {
+    setIsHighlighting(true); // Start highlighting
     toggleBoxState(index); // Change state of the clicked cell immediately
   };
 
+  // Mouse enter handler for highlighting action
   const handleMouseEnter = (index: number) => {
-    if (isDragging) {
-      toggleBoxState(index); // Change state of the cell while dragging
+    if (isHighlighting) {
+      toggleBoxState(index); // Change state of the cell while highlighting
     }
   };
 
+  // Mouse up handler to stop highlighting
   const handleMouseUp = () => {
-    setIsDragging(false); // Stop dragging when the mouse is released
+    setIsHighlighting(false); // Stop highlighting when the mouse is released
   };
 
   useEffect(() => {
@@ -73,7 +76,7 @@ export const DynamicGrid: React.FC<DynamicGrid> = ({ gridSize, layout }) => {
   // Add mouseup event listener globally to handle drag end
   useEffect(() => {
     const handleGlobalMouseUp = () => {
-      setIsDragging(false); // End dragging on global mouse up
+      setIsHighlighting(false); // End highlighting on global mouse up
     };
 
     document.addEventListener("mouseup", handleGlobalMouseUp);
@@ -96,6 +99,7 @@ export const DynamicGrid: React.FC<DynamicGrid> = ({ gridSize, layout }) => {
             key={index}
             onMouseDown={() => handleMouseDown(index)}
             onMouseEnter={() => handleMouseEnter(index)}
+            
           >
             <Box
               key={index}
@@ -107,6 +111,7 @@ export const DynamicGrid: React.FC<DynamicGrid> = ({ gridSize, layout }) => {
                 justifyContent: "center",
                 alignItems: "center",
                 backgroundColor: cellColors[index],
+                pointerEvents: "none"
               }}
             >
               <Box /*change color of this box */></Box>
